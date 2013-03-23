@@ -1,31 +1,17 @@
-package main
+package penguin
 
 import (
 	"github.com/emicklei/go-restful"
 	"log"
-    //"fmt"
-    "flag"
 	"net/http"
     "labix.org/v2/mgo"
     "labix.org/v2/mgo/bson"
 )
 
-type Queue struct { 
-        Id           bson.ObjectId  `json:"_id" bson:"_id"`
-        Name         string         `json:"name"`
-        Stories      []Story        `json:"stories"`
-} 
+var dbUrl string
 
-type Story struct { 
-        Id           bson.ObjectId  `json:"_id" bson:"_id"`
-        Author       string         `json:"author"`       
-        Merged       bool           `json:"merged"`          
-        Reference    string         `json:"reference"`
-        Title        string         `json:"title"`
-} 
-
-
-func NewQueueService() *restful.WebService {
+func NewQueueService(dbUrlFlag string) *restful.WebService {
+    dbUrl = dbUrlFlag
 	ws := new(restful.WebService)
 	ws.
 		Path("/api").
@@ -205,32 +191,5 @@ func getDB() (session *mgo.Session, c *mgo.Collection) {
             panic(err)
     }
     return session, session.DB("penguin").C("queues")
-}
-
-var dbUrl string
-var port string
-var swaggerHost string
-
-func init() {
-    flag.StringVar(&dbUrl, "dbUrl", "localhost:27017/penguin", "The host:port/db of the Mongo database to connect to.")
-    flag.StringVar(&port, "port", "9091", "The port number that the Rest API will listen on.")
-    flag.StringVar(&swaggerHost, "swaggerHost", "localhost", "The hostname that swagger will use to server the Swagger Web UI.")
-}
-
-func main() {
-    flag.Parse()
-	restful.Add(NewQueueService())
-	
-	// Optionally, you can install the Swagger Service which provides a nice Web UI on your REST API
-	// Open http://localhost:8080/apidocs and enter http://localhost:8080/apidocs.json in the api input field.
-	config := restful.SwaggerConfig{ 
-		WebServicesUrl: "http://"+swaggerHost+ ":" +port,
-		ApiPath: "/apidocs.json",
-		SwaggerPath: "/apidocs/",
-		SwaggerFilePath: "/home/simon/Downloads/swagger-ui-1.1.7" }	
-	restful.InstallSwaggerService(config)
-	
-	log.Printf("start saj listening on localhost:"+port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
