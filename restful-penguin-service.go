@@ -8,10 +8,7 @@ import (
     "labix.org/v2/mgo/bson"
 )
 
-var dbUrl string
-
-func NewQueueService(dbUrlFlag string) *restful.WebService {
-    dbUrl = dbUrlFlag
+func NewQueueService() *restful.WebService {
 	ws := new(restful.WebService)
 	ws.
 		Path("/api").
@@ -186,10 +183,30 @@ func storyDelete(request *restful.Request, response *restful.Response) {
 }
 
 func getDB() (session *mgo.Session, c *mgo.Collection) {
-    session, err := mgo.Dial(dbUrl)
+    session, err := mgo.Dial(config.DbUrl)
     if err != nil {
             panic(err)
     }
     return session, session.DB("penguin").C("queues")
 }
+
+var config Config
+
+func StartService(configuration Config) {
+    config = configuration
+	restful.Add(NewQueueService())
+	
+	// Optionally, you can install the Swagger Service which provides a nice Web UI on your REST API
+	// Open http://localhost:8080/apidocs and enter http://localhost:8080/apidocs.json in the api input field.
+	swaggerConfig := restful.SwaggerConfig{ 
+		WebServicesUrl: "http://"+config.SwaggerHost+ ":" + config.Port,
+		ApiPath: "/apidocs.json",
+		SwaggerPath: "/apidocs/",
+		SwaggerFilePath: config.SwaggerFilePath }	
+	restful.InstallSwaggerService(swaggerConfig)
+	
+	log.Printf("start listening on localhost:"+config.Port)
+	log.Fatal(http.ListenAndServe(":"+config.Port, nil))
+}
+
 

@@ -18,3 +18,11 @@ type Story struct {
         Title        string         `json:"title"`
 } 
 
+// Properties can be set on the command line
+type Config struct {
+        DbUrl           string
+        Port            string
+        SwaggerHost     string
+        SwaggerFilePath string
+}
+
