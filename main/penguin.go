@@ -25,6 +25,6 @@ func init() {
 
 func main() {
     flag.Parse()
-    penguin.StartService(penguin.Config{dbUrl, port, swaggerHost, swaggerFilePath})
+    penguin.StartService(&penguin.Config{dbUrl, port, swaggerHost, swaggerFilePath})
 }
 

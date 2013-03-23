@@ -190,9 +190,9 @@ func getDB() (session *mgo.Session, c *mgo.Collection) {
     return session, session.DB("penguin").C("queues")
 }
 
-var config Config
+var config *Config
 
-func StartService(configuration Config) {
+func StartService(configuration *Config) {
     config = configuration
 	restful.Add(NewQueueService())
 	
